@@ -1,0 +1,15 @@
+node_modules
+.next
+dnkRpt
+bvlRpt
+element
+desktop.ini
+pas
+pm2.json
+.local*
+.vscode
+no.txt
+*.pas
+nodemon.json
+issues
+cert
