@@ -22,7 +22,8 @@ const log = (x) => {
   console.log(x)
 }
 
-const config = dev ? require('../shared/config.js') : require('E:/shared/config.js')
+const config =  dev ? require('../shared/config.js') : require('E:/shared/config.js')
+// const config = test ? require('E:/shared/config.js') : dev ? require('../shared/config.js') : require('E:/shared/config.js')
 
 /////////////////////// OFS CONNECTION ////////////////////////
 // const BVL_OFS_POOL = new sql.ConnectionPool(config.BVL_OFS_CONFIG).connect();
