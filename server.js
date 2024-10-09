@@ -12,7 +12,7 @@ const fs = require('fs')
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
-const appPort = 5877
+const appPort = dev ? 8001 : 8000 //Choose new ports for new app creation
 
 //A global sessions array that tracks the users currently signed in to the app
 let sessions = []
@@ -22,85 +22,21 @@ const log = (x) => {
   console.log(x)
 }
 
-//USE EXTREME CAUTION - LIVE OFS CONNECTION
-////////////////////////////////////////////////////////
-// const ofsConfig = {
-//   user: 'svcWebAppOFS',
-//   password: 'OFSweb!!usap',
-//   server: '10.1.2.36',
-//   database: 'spt001db',
-//   port: 1433,
-//   connectionTimeout: 300000,
-//   requestTimeout: 300000,
-//   pool: {
-//       idleTimeoutMillis: 300000,
-//       max: 100
-//   }
-// }
-// const BVL_OFS_Pool = new sql.ConnectionPool(ofsConfig).connect();
-//////////////////////////////////////////////////////////////
+const config = test ? require('E:/shared/config.js') : dev ? require('../shared/config.js') : require('E:/shared/config.js')
 
+/////////////////////// OFS CONNECTION ////////////////////////
+// const BVL_OFS_POOL = new sql.ConnectionPool(config.BVL_OFS_CONFIG).connect();
+// const DNK_OFS_POOL = new sql.ConnectionPool(config.DNK_OFS_CONFIG).connect();
+// const NJX_OFS_POOL = new sql.ConnectionPool(config.NJX_OFS_CONFIG).connect();
+///////////////////////////////////////////////////////////////
 
-//Connection string config object for sql server db: DNKTEST for testing, SPTS_DNK for production.
-// const config = {
-//   user: 'svcWebApp',
-//   password: 'USweb!!appsAP',
-//   server: '10.1.2.87', //corpitdb
-//   database: 'spt001db', //copy of bvl ofs data
-//   port: 1433,
-//   connectionTimeout: 300000,
-//   requestTimeout: 300000,
-//   pool: {
-//       idleTimeoutMillis: 300000,
-//       max: 100
-//   }
-// }
+//////////////////////// WEBAPPS CONNECTION ///////////////////
+// const WEBAPPS_POOL = new sql.ConnectionPool(config.WEBAPPS_CONFIG).connect();
+///////////////////////////////////////////////////////////////
 
-// //Connection Pool for the above sql connection
-// const corpITdbBVLOFS_Pool = new sql.ConnectionPool(config).connect();
-
-
-// const ofsTestConfig = {
-//   user: 'svcWebAppOFS',
-//   password: 'OFSweb!!usap',
-//   server: '10.1.2.36', //corpdb4
-//   database: 'BVLTEST', //bvl ofs (test)
-//   port: 1433,
-//   connectionTimeout: 300000,
-//   requestTimeout: 300000,
-//   pool: {
-//       idleTimeoutMillis: 300000,
-//       max: 100
-//   }
-// }
-
-// const BVL_OFS_Test_Pool = new sql.ConnectionPool(ofsTestConfig).connect();
-
-// //Connection string config object for sql server db: DNKTEST for testing, SPTS_DNK for production.
-// const appConfig = {
-//   user: 'svcWebApp',
-//   password: 'USweb!!appsAP',
-//   server: '10.1.2.87', //corpitdb
-//   database: 'UsapAppsDBTest', // prodrec test database
-//   port: 1433,
-//   connectionTimeout: 300000,
-//   requestTimeout: 300000,
-//   pool: {
-//       idleTimeoutMillis: 300000,
-//       max: 100
-//   }
-// }
-
-// //Connection Pool for the above sql connection
-// const app_Pool = new sql.ConnectionPool(appConfig).connect();
-
-//Config obj to connect to Active Directory
-const adConfig = {
-  url: 'ldap://corpdc1.univstainless.com',
-  baseDN: 'dc=univstainless,dc=com',
-  bindDN: 'svcWebApp@univstainless.com',
-  bindCredentials : 'USweb!!appsAP'
-}
+//////////////////// ACTIVE DIRECTORY CONNECTION //////////////
+const adConfig = config.AD_CONFIG
+///////////////////////////////////////////////////////////////
 
 app.prepare().then(() => {
   const server = express()
@@ -293,20 +229,6 @@ app.prepare().then(() => {
     })
   }
 
-  const addZero = idNum =>{
-    if(idNum.length < 7 && idNum.split('')[0] !== '0' ){
-      return `0${idNum}`
-    }
-    else{
-      return idNum
-    }
-  }
-
-  const getAvg = (...args) => {
-    const filtered = args.filter(val=>val!==0).filter(val=>val!=='')
-    const avg = filtered.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / filtered.length
-    return((isNaN(avg)) ? null : avg.toFixed(2))
-  }
 
   server.get('*', (req, res) => {
     return handle(req, res)
